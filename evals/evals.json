@@ -1,0 +1,21 @@
+[
+  {
+    "id": "basic-course",
+    "input": "帮我做一个HTML PPT，主题是《Spring Boot入门》，分2节：环境搭建和REST API，讲师张三，官网 example.com",
+    "expected_pages": 6,
+    "expected_structure": ["cover", "outline", "chapter_cover", "content", "chapter_cover", "content", "summary"],
+    "must_have": ["slide-cover", "slide-chapter-cover", "slide-content", "cover-bottom-area", "thumb-strip"]
+  },
+  {
+    "id": "multi-chapter",
+    "input": "制作一个3节课的HTML PPT，Docker实战课程，第1节Docker基础，第2节Docker Compose，第3节Docker Swarm",
+    "expected_pages": {"min": 9, "max": 15},
+    "must_have": ["slide-chapter-cover", "chapter-main-title", "chapter-icon"]
+  },
+  {
+    "id": "validate-check",
+    "input_file": "assets/template.html",
+    "validate": true,
+    "expected_issues": 0
+  }
+]
