@@ -91,6 +91,54 @@ metadata:
 - `.chapter-sub-title`：20px 英文章节名，字母间距
 - `.chapter-divider`：100px 金色分隔线
 - `.chapter-desc`：17px 描述文字
+- `.chapter-tags`：能力标签行（胶囊标签，不同颜色区分功能类型）
+- `.ctag`：标签基础样式，`.ctag-blue` `.ctag-green` `.ctag-gold` `.ctag-red` `.ctag-purple` 五色
+
+### 章节封面能力标签
+
+章节封面标题下方展示本节核心能力，用彩色标签区分：
+
+```css
+.chapter-tags {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.ctag {
+  padding: 5px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+```
+
+HTML 结构：
+```html
+<div class="chapter-tags">
+  <span class="ctag ctag-blue">AI Shell</span>
+  <span class="ctag ctag-green">目录</span>
+  <span class="ctag ctag-gold">SFTP</span>
+  <span class="ctag ctag-red">跳板机</span>
+  <span class="ctag ctag-purple">隧道</span>
+</div>
+```
+
+标签配色语义：
+| 类名 | 颜色 | 适用场景 |
+|------|------|----------|
+| `.ctag-blue` | 蓝色 | 核心能力、主要功能 |
+| `.ctag-green` | 绿色 | 文件管理、基础操作 |
+| `.ctag-gold` | 金色 | 协议、传输、配置 |
+| `.ctag-red` | 红色 | 安全、中转、高风险项 |
+| `.ctag-purple` | 紫色 | 网络、隧道、高级特性 |
+
+设计要点：
+- 半透明背景 + 同色边框，和深蓝封面协调
+- 圆角胶囊（`border-radius: 20px`），精致不突兀
+- `margin-top: 18px` 与描述文字拉开间距
+- `flex-wrap: wrap` 标签多时自动换行
 
 ### 左上角课程品牌信息
 

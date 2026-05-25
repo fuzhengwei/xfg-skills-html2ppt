@@ -23,7 +23,14 @@
 | `.cover-course-info` | absolute top-left | 课程品牌信息（仅章节封面） |
 | `.course-logo` | course-info 内 | 金色渐变 Logo 方块 |
 | `.course-main` | course-info 内 | 课程名（15px/700） |
-| `.course-sub` | course-info 内 | 课程副标题（11px） |
+| `.chapter-desc` | course-info 内 | 课程副标题（11px） |
+| `.chapter-tags` | 章节封面 | 能力标签行容器 |
+| `.ctag` | chapter-tags 内 | 标签基础样式 |
+| `.ctag-blue` | chapter-tags 内 | 蓝色标签（核心能力） |
+| `.ctag-green` | chapter-tags 内 | 绿色标签（基础操作） |
+| `.ctag-gold` | chapter-tags 内 | 金色标签（协议/配置） |
+| `.ctag-red` | chapter-tags 内 | 红色标签（安全/高风险） |
+| `.ctag-purple` | chapter-tags 内 | 紫色标签（高级特性） |
 | `.course-badge` | 居中 | 课程/章节徽章 |
 | `.proj-name` | 居中 | 项目名（84px） |
 | `.proj-sub` | 居中 | 英文副标题 |
