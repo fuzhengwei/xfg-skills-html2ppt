@@ -84,12 +84,50 @@ metadata:
 10. 底部信息栏（`.bottom-accent`）：30px 高半透明条
 
 **章节封面**额外包含：
+- `.cover-course-info`：左上角课程品牌信息（毛玻璃卡片）
 - `.course-badge`：显示"第 N 节"
 - `.chapter-icon`：64px emoji 图标
 - `.chapter-main-title`：48px/900 大标题
 - `.chapter-sub-title`：20px 英文章节名，字母间距
 - `.chapter-divider`：100px 金色分隔线
 - `.chapter-desc`：17px 描述文字
+
+### 左上角课程品牌信息
+
+章节封面左上角展示主课程信息，让观众始终知道当前属于哪个课程：
+
+```css
+.cover-course-info {
+  position: absolute;
+  top: 22px;
+  left: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0,0,0,0.2);
+  backdrop-filter: blur(8px);
+  padding: 10px 20px 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+```
+
+HTML 结构：
+```html
+<div class="cover-course-info">
+  <div class="course-logo">W</div>
+  <div class="course-text">
+    <div class="course-main">WaLiCode</div>
+    <div class="course-sub">AI Shell 手把手操作云服务器</div>
+  </div>
+</div>
+```
+
+设计要点：
+- **毛玻璃卡片**：与右下角讲师信息统一风格
+- **Logo 渐变填充**：金色渐变方块（`linear-gradient(135deg, gold, gold-light)`），深色字
+- **两行文字**：上行课程名（15px/700 白色 90%），下行课程副标题（11px 白色 35%）
+- **左上角 + 右下角呼应**：两个毛玻璃卡片对角布局，视觉平衡
 
 ### 右下角讲师信息
 
@@ -326,12 +364,14 @@ HTML 结构：
 ## Gotchas
 
 1. **封面页讲师信息必须在右下角**：`.cover-bottom-area` 使用 `position: absolute; right: 36px; bottom: 44px;`，不要居中放置
-2. **章节封面继承总封面样式**：`.slide-chapter-cover` 需要用 `!important` 覆盖 `.slide-cover` 的某些属性（如 `left: auto !important`、`flex-direction: row !important`）
-3. **页码必须准确**：每页的 `N / Total` 必须与实际页数一致，缩略图数量也要匹配
-4. **aspect-ratio: 16/9**：舞台和每张幻灯片卡片都保持 16:9
-5. **单个 HTML 文件**：所有 CSS 和 JS 内联，不引用外部文件（Google Fonts 除外）
-6. **缩略图导航**：`.thumb-strip` 固定在底部，z-index: 200，不遮挡内容
-7. **代码块字体**：使用 JetBrains Mono / Menlo 等等宽字体
-8. **中文排版**：使用 Noto Sans SC 字体，行高不低于 1.6
-9. **金色装饰线位置**：封面 `.top-accent` 在最顶部，`.bottom-accent` 在最底部，都是 absolute 定位
-10. **底部信息栏和讲师区域不重叠**：`.bottom-accent` 高 30px 在最底，`.cover-bottom-area` bottom: 44px 在上方
+2. **章节封面左上角课程品牌信息**：`.cover-course-info` 使用毛玻璃卡片（`background: rgba(0,0,0,0.2); backdrop-filter: blur(8px)`），与右下角讲师信息对角呼应
+3. **章节封面继承总封面样式**：`.slide-chapter-cover` 需要用 `!important` 覆盖 `.slide-cover` 的某些属性（如 `left: auto !important`、`flex-direction: row !important`）
+4. **页码必须准确**：每页的 `N / Total` 必须与实际页数一致，缩略图数量也要匹配
+5. **aspect-ratio: 16/9**：舞台和每张幻灯片卡片都保持 16:9
+6. **单个 HTML 文件**：所有 CSS 和 JS 内联，不引用外部文件（Google Fonts 除外）
+7. **缩略图导航**：`.thumb-strip` 固定在底部，z-index: 200，不遮挡内容
+8. **代码块字体**：使用 JetBrains Mono / Menlo 等等宽字体
+9. **中文排版**：使用 Noto Sans SC 字体，行高不低于 1.6
+10. **金色装饰线位置**：封面 `.top-accent` 在最顶部，`.bottom-accent` 在最底部，都是 absolute 定位
+11. **底部信息栏和讲师区域不重叠**：`.bottom-accent` 高 30px 在最底，`.cover-bottom-area` bottom: 44px 在上方
+12. **Logo 渐变优于边框**：`.course-logo` 使用 `linear-gradient(135deg, gold, gold-light)` 填充 + 深色字，比半透明背景+金色边框更有品牌质感

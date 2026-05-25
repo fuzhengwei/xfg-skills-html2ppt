@@ -216,6 +216,48 @@
   }
 
   /* ====== 章节封面特有：大号章节标题 ====== */
+  .slide-chapter-cover .cover-course-info {
+    position: absolute;
+    top: 22px;
+    left: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(8px);
+    padding: 10px 20px 10px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .slide-chapter-cover .cover-course-info .course-logo {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--blue-dark);
+    flex-shrink: 0;
+  }
+  .slide-chapter-cover .cover-course-info .course-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .slide-chapter-cover .cover-course-info .course-text .course-main {
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    letter-spacing: 1.5px;
+  }
+  .slide-chapter-cover .cover-course-info .course-text .course-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.5px;
+  }
   .slide-chapter-cover .chapter-icon {
     font-size: 64px;
     margin-bottom: 12px;
@@ -742,6 +784,13 @@
   <!-- ========== 第3页：第1节 章节封面 ========== -->
   <div class="slide-card slide-cover slide-chapter-cover" id="s3">
     <div class="top-accent"></div>
+    <div class="cover-course-info">
+      <div class="course-logo">W</div>
+      <div class="course-text">
+        <div class="course-main">WaLiCode</div>
+        <div class="course-sub">AI Shell 手把手操作云服务器</div>
+      </div>
+    </div>
     <div class="course-badge"><span class="dot"></span>第 1 节</div>
     <div class="chapter-icon">🚀</div>
     <div class="chapter-main-title">AI Shell<br>连接云服务器</div>
@@ -832,6 +881,13 @@
   <!-- ========== 第6页：第2节 章节封面 ========== -->
   <div class="slide-card slide-cover slide-chapter-cover" id="s6">
     <div class="top-accent"></div>
+    <div class="cover-course-info">
+      <div class="course-logo">W</div>
+      <div class="course-text">
+        <div class="course-main">WaLiCode</div>
+        <div class="course-sub">AI Shell 手把手操作云服务器</div>
+      </div>
+    </div>
     <div class="course-badge"><span class="dot"></span>第 2 节</div>
     <div class="chapter-icon">🐳</div>
     <div class="chapter-main-title">Docker + Portainer<br>环境安装与使用</div>
@@ -921,6 +977,13 @@
   <!-- ========== 第9页：第3节 章节封面 ========== -->
   <div class="slide-card slide-cover slide-chapter-cover" id="s9">
     <div class="top-accent"></div>
+    <div class="cover-course-info">
+      <div class="course-logo">W</div>
+      <div class="course-text">
+        <div class="course-main">WaLiCode</div>
+        <div class="course-sub">AI Shell 手把手操作云服务器</div>
+      </div>
+    </div>
     <div class="course-badge"><span class="dot"></span>第 3 节</div>
     <div class="chapter-icon">🗄️</div>
     <div class="chapter-main-title">MySQL 配置<br>和使用</div>

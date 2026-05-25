@@ -20,6 +20,10 @@
 | `.top-accent` | absolute top | 金色装饰线 |
 | `.bottom-accent` | absolute bottom | 页脚信息栏 |
 | `.cover-bottom-area` | absolute bottom-right | 讲师信息胶囊 |
+| `.cover-course-info` | absolute top-left | 课程品牌信息（仅章节封面） |
+| `.course-logo` | course-info 内 | 金色渐变 Logo 方块 |
+| `.course-main` | course-info 内 | 课程名（15px/700） |
+| `.course-sub` | course-info 内 | 课程副标题（11px） |
 | `.course-badge` | 居中 | 课程/章节徽章 |
 | `.proj-name` | 居中 | 项目名（84px） |
 | `.proj-sub` | 居中 | 英文副标题 |
