@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WaLiCode · AI Shell 手把手操作云服务器</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --blue: #1a3a5c;
+    --blue-dark: #0d2137;
+    --blue-light: #285680;
+    --gold: #c8960c;
+    --gold-light: #e8b730;
+    --red: #c0392b;
+    --red-light: #e74c3c;
+    --white: #ffffff;
+    --gray-50: #f8f9fa;
+    --gray-100: #f0f1f3;
+    --gray-200: #e0e2e6;
+    --gray-300: #c0c4cc;
+    --gray-500: #7a7f8a;
+    --gray-700: #3a3f4a;
+    --gray-900: #1a1c23;
+    --text: #1a1c23;
+    --text-dim: #6b7280;
+  }
+
+  body {
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #111318;
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* === 主舞台 === */
+  .stage {
+    position: relative;
+    width: 94vw;
+    max-width: 1200px;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* === 幻灯片卡片 === */
+  .slide-card {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow:
+      0 8px 40px rgba(0,0,0,0.4),
+      0 2px 8px rgba(0,0,0,0.2),
+      inset 0 0 0 1px rgba(0,0,0,0.06);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    transform-origin: center center;
+    opacity: 0;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .slide-card.active {
+    display: flex;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* ====== 封面样式（总封面 + 章节封面共用） ====== */
+  .slide-cover {
+    background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 40%, #1e4d7a 100%);
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .slide-cover .top-accent {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+  }
+
+  .slide-cover .bottom-accent {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 30px;
+    background: rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .slide-cover .course-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 24px 8px 14px;
+    border: 1.5px solid rgba(200,150,12,0.5);
+    border-radius: 30px;
+    font-size: 16px;
+    color: var(--gold-light);
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+  }
+
+  .slide-cover .course-badge .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  .slide-cover .proj-name {
+    font-size: 84px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+
+  .slide-cover .proj-sub {
+    font-size: 20px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 10px;
+    margin-bottom: 24px;
+  }
+
+  .slide-cover .sep-line {
+    width: 80px;
+    height: 2px;
+    background: var(--gold);
+    margin: 0 auto 20px;
+  }
+
+  .slide-cover .chapter-title {
+    font-size: 44px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  .slide-cover .chapter-num {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--gold);
+    letter-spacing: 3px;
+    margin-bottom: 28px;
+  }
+
+  .slide-cover .difficulty-stars {
+    font-size: 26px;
+    color: var(--gold-light);
+    letter-spacing: 3px;
+    margin-bottom: 28px;
+  }
+
+  .slide-cover .cover-bottom-area {
+    position: absolute;
+    bottom: 44px;
+    left: auto;
+    right: 36px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(0,0,0,0.25);
+    backdrop-filter: blur(8px);
+    padding: 12px 18px 12px 22px;
+    border-radius: 40px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .slide-cover .cover-bottom-area .author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    text-align: right;
+  }
+
+  .slide-cover .cover-bottom-area .author-info .author-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 1px;
+  }
+
+  .slide-cover .cover-bottom-area .author-info .author-site {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.5px;
+  }
+
+  .slide-cover .avatar-cover {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(200,150,12,0.5);
+    flex-shrink: 0;
+  }
+
+  /* ====== 章节封面特有：大号章节标题 ====== */
+  .slide-chapter-cover .cover-course-info {
+    position: absolute;
+    top: 22px;
+    left: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(8px);
+    padding: 10px 20px 10px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .slide-chapter-cover .cover-course-info .course-logo {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--blue-dark);
+    flex-shrink: 0;
+  }
+  .slide-chapter-cover .cover-course-info .course-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .slide-chapter-cover .cover-course-info .course-text .course-main {
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    letter-spacing: 1.5px;
+  }
+  .slide-chapter-cover .cover-course-info .course-text .course-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.5px;
+  }
+  .slide-chapter-cover .chapter-icon {
+    font-size: 64px;
+    margin-bottom: 12px;
+  }
+  .slide-chapter-cover .chapter-main-title {
+    font-size: 48px;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 10px;
+    line-height: 1.15;
+  }
+  .slide-chapter-cover .chapter-sub-title {
+    font-size: 20px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+  }
+  .slide-chapter-cover .chapter-divider {
+    width: 100px;
+    height: 3px;
+    background: var(--gold);
+    margin: 0 auto 14px;
+    border-radius: 2px;
+  }
+  .slide-chapter-cover .chapter-desc {
+    font-size: 17px;
+    color: rgba(255,255,255,0.65);
+    max-width: 680px;
+    line-height: 1.55;
+    margin: 0 auto;
+  }
+  .slide-chapter-cover .chapter-tags {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+  .slide-chapter-cover .chapter-tags .ctag {
+    padding: 5px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .slide-chapter-cover .chapter-tags .ctag-blue {
+    background: rgba(59,130,246,0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+  .slide-chapter-cover .chapter-tags .ctag-green {
+    background: rgba(34,197,94,0.12);
+    color: #4ade80;
+    border: 1px solid rgba(34,197,94,0.25);
+  }
+  .slide-chapter-cover .chapter-tags .ctag-gold {
+    background: rgba(200,150,12,0.12);
+    color: #e8b730;
+    border: 1px solid rgba(200,150,12,0.25);
+  }
+  .slide-chapter-cover .chapter-tags .ctag-red {
+    background: rgba(220,50,50,0.12);
+    color: #f87171;
+    border: 1px solid rgba(220,50,50,0.25);
+  }
+  .slide-chapter-cover .chapter-tags .ctag-purple {
+    background: rgba(147,51,234,0.12);
+    color: #c084fc;
+    border: 1px solid rgba(147,51,234,0.25);
+  }
+  .slide-chapter-cover .cover-bottom-area {
+    position: absolute;
+    bottom: 44px;
+    left: auto !important;
+    right: 36px;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 14px;
+    background: rgba(0,0,0,0.25);
+    backdrop-filter: blur(8px);
+    padding: 12px 18px 12px 22px;
+    border-radius: 40px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .slide-chapter-cover .cover-bottom-area .author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    text-align: right;
+  }
+  .slide-chapter-cover .cover-bottom-area .author-info .author-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 1px;
+  }
+  .slide-chapter-cover .cover-bottom-area .author-info .author-site {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.5px;
+  }
+  .slide-chapter-cover .cover-bottom-area .avatar-cover {
+    width: 52px;
+    height: 52px;
+    border-width: 2px;
+  }
+
+  /* ====== 内容页通用 ====== */
+  .slide-content { padding: 0; }
+
+  .slide-content .slide-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 36px 12px;
+    border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
+  }
+
+  .slide-content .slide-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .slide-content .slide-header .course-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--blue);
+  }
+
+  .slide-content .slide-header .course-tag .tag-icon {
+    width: 24px; height: 24px;
+    background: var(--blue);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .slide-content .slide-header .section-label {
+    font-size: 15px;
+    color: var(--gray-500);
+    font-weight: 500;
+  }
+
+  .slide-content .slide-header .section-label strong {
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .slide-content .slide-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 36px 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slide-content .slide-body h2 {
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--gold);
+    display: inline-block;
+  }
+
+  .slide-content .slide-body h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 8px;
+  }
+
+  .slide-content .slide-body p,
+  .slide-content .slide-body li {
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--text);
+  }
+
+  .slide-content .slide-body ul { list-style: none; }
+  .slide-content .slide-body ul li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 6px;
+  }
+  .slide-content .slide-body ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 2px;
+    color: var(--gold);
+    font-size: 14px;
+  }
+
+  .slide-content .slide-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 36px;
+    border-top: 1px solid var(--gray-200);
+    font-size: 13px;
+    color: var(--gray-500);
+    flex-shrink: 0;
+  }
+
+  /* === 步骤流程 === */
+  .steps { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--gray-50);
+    padding: 14px 18px;
+    border-radius: 6px;
+    border: 1px solid var(--gray-200);
+  }
+  .step-num {
+    width: 36px; height: 36px;
+    border-radius: 4px;
+    background: var(--blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .step-content h4 { font-size: 20px; font-weight: 700; margin-bottom: 2px; color: var(--text); }
+  .step-content p { font-size: 16px; color: var(--text-dim); }
+
+  .hl { color: var(--red); font-weight: 700; }
+  .hl2 { color: var(--blue); font-weight: 700; }
+  .hl3 { color: #2d7a3a; font-weight: 700; }
+
+  /* === 卡片网格 === */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    width: 100%;
+  }
+  .card {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    padding: 18px;
+  }
+  .card .card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .card .card-head .card-icon { font-size: 28px; }
+  .card h4 { font-size: 20px; font-weight: 700; color: var(--text); }
+  .card p { font-size: 15px; color: var(--text-dim); line-height: 1.6; }
+  .card .card-tags { margin-top: 8px; display: flex; gap: 5px; flex-wrap: wrap; }
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .tag-blu { background: #e8f0fe; color: var(--blue); }
+  .tag-grn { background: #e6f4ea; color: #2d7a3a; }
+  .tag-gld { background: #fef7e0; color: var(--gold); }
+  .tag-red { background: #fce4e4; color: var(--red); }
+  .tag-gry { background: #f0f1f3; color: var(--gray-700); }
+
+  /* === 两栏 === */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+  }
+  .col-box {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    padding: 18px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .col-box h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--gold);
+    display: inline-block;
+  }
+  .col-box li { font-size: 16px; margin-bottom: 4px; }
+
+  /* === 提示框 === */
+  .tip { background: #fef7e0; border-left: 4px solid var(--gold); border-radius: 0 4px 4px 0; padding: 12px 18px; width: 100%; margin: 8px 0; }
+  .tip p { font-size: 15px; color: #5a4a1a; }
+  .info { background: #e8f0fe; border-left: 4px solid var(--blue); border-radius: 0 4px 4px 0; padding: 12px 18px; width: 100%; margin: 8px 0; }
+  .info p { font-size: 15px; color: var(--blue-dark); }
+  .warn { background: #fce4e4; border-left: 4px solid var(--red); border-radius: 0 4px 4px 0; padding: 12px 18px; width: 100%; margin: 8px 0; }
+  .warn p { font-size: 15px; color: #5a1a1a; }
+
+  /* === 代码 === */
+  .code-block {
+    background: #1e1e2e;
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', 'Menlo', monospace;
+    font-size: 14px;
+    color: #cdd6f4;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 6px 0;
+  }
+  .code-block .cmd { color: #89b4fa; }
+  .code-block .comment { color: #6c7086; font-style: italic; }
+  .code-block .str { color: #a6e3a1; }
+
+  /* === 架构图 === */
+  .arch-diagram { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+  .arch-row { display: flex; gap: 12px; justify-content: center; }
+  .arch-box { padding: 12px 24px; border-radius: 4px; text-align: center; font-size: 17px; font-weight: 600; min-width: 160px; }
+  .arch-box.af { background: #e8f0fe; border: 1.5px solid var(--blue); color: var(--blue); }
+  .arch-box.ab { background: #fef7e0; border: 1.5px solid var(--gold); color: #5a4a1a; }
+  .arch-box.at { background: #e6f4ea; border: 1.5px solid #2d7a3a; color: #2d7a3a; }
+  .arch-arrow { font-size: 18px; color: var(--gray-300); }
+
+  /* === 讲师头像 === */
+  .avatar-img {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--gray-200);
+    flex-shrink: 0;
+  }
+
+  /* === 缩略图导航 === */
+  .thumb-strip {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 200;
+    background: rgba(17,19,24,0.85);
+    backdrop-filter: blur(10px);
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    max-width: 95vw;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
+  }
+
+  .thumb {
+    width: 80px;
+    height: 45px;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+    background: #1e2030;
+    transition: border-color 0.2s, transform 0.15s;
+    user-select: none;
+  }
+
+  .thumb:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255,255,255,0.3);
+  }
+
+  .thumb.active { border-color: var(--gold-light); }
+
+  .thumb .thumb-num {
+    position: absolute;
+    top: 2px; right: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+    background: rgba(0,0,0,0.5);
+    padding: 1px 4px;
+    border-radius: 2px;
+    line-height: 1.2;
+  }
+
+  .thumb .thumb-preview {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: rgba(255,255,255,0.45);
+    padding: 4px;
+    text-align: center;
+    line-height: 1.2;
+    overflow: hidden;
+  }
+
+  .thumb.cover-thumb {
+    background: linear-gradient(135deg, #0d2137, #1a3a5c);
+  }
+  .thumb.cover-thumb .thumb-preview {
+    color: var(--gold-light);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .thumb.chapter-thumb {
+    background: linear-gradient(135deg, #0d2137, #1a3a5c);
+  }
+  .thumb.chapter-thumb .thumb-preview {
+    color: var(--gold-light);
+    font-size: 9px;
+    font-weight: 700;
+  }
+
+  /* === 导航按钮 === */
+  .nav-arrows {
+    position: fixed;
+    top: 50%;
+    left: 0; right: 0;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 150;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+
+  .nav-arrow {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(17,19,24,0.7);
+    color: rgba(255,255,255,0.6);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    transition: all 0.15s;
+    backdrop-filter: blur(6px);
+  }
+
+  .nav-arrow:hover {
+    background: rgba(26,58,92,0.8);
+    color: #fff;
+    border-color: var(--gold);
+  }
+
+  /* === 滚动条 === */
+  .slide-body::-webkit-scrollbar { width: 4px; }
+  .slide-body::-webkit-scrollbar-track { background: transparent; }
+  .slide-body::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
+  .thumb-strip::-webkit-scrollbar { height: 3px; }
+  .thumb-strip::-webkit-scrollbar-track { background: transparent; }
+  .thumb-strip::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+  /* === 作业卡片 === */
+  .hw-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
+  .hw-card { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 6px; padding: 20px; }
+  .hw-card .lvl { display: inline-block; padding: 4px 12px; border-radius: 3px; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .hw-card .lvl.ez { background: #e6f4ea; color: #2d7a3a; }
+  .hw-card .lvl.hd { background: #fef7e0; color: var(--gold); }
+  .hw-card h4 { font-size: 20px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .hw-card p { font-size: 15px; color: var(--text-dim); line-height: 1.6; }
+
+  /* === 链接 === */
+  .slide-body a {
+    color: var(--blue);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(26,58,92,0.3);
+    transition: border-color 0.2s;
+  }
+  .slide-body a:hover { border-color: var(--gold); color: var(--gold); }
+  .link-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+  .link-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-dim); }
+  .link-item .link-icon { font-size: 14px; flex-shrink: 0; }
+  .link-item a { font-size: 13px; color: var(--blue); text-decoration: none; border-bottom: 1px solid rgba(26,58,92,0.2); }
+  .link-item a:hover { border-color: var(--gold); color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- 左右箭头导航 -->
+<div class="nav-arrows">
+  <button class="nav-arrow" onclick="changeSlide(-1)" title="上一页">◀</button>
+  <button class="nav-arrow" onclick="changeSlide(1)" title="下一页">▶</button>
+</div>
+
+<!-- 主舞台 -->
+<div class="stage" id="stage">
+
+  <!-- ========== 第1页：总封面 ========== -->
+  <div class="slide-card slide-cover active" id="s1">
+    <div class="top-accent"></div>
+    <div class="course-badge"><span class="dot"></span>AI Shell 智能终端 · 系列课程</div>
+    <div class="proj-name">WaLiCode</div>
+    <div class="proj-sub">W A L I C O D E</div>
+    <div class="sep-line"></div>
+    <div class="chapter-title">AI Shell 手把手操作云服务器</div>
+    <div class="chapter-num">实战教程</div>
+    <div class="difficulty-stars">★★★☆☆</div>
+    <div class="cover-bottom-area">
+      <div class="author-info">
+        <div class="author-name">讲师：小傅哥</div>
+        <div class="author-site">walicode.xiaofuge.cn</div>
+      </div>
+      <img class="avatar-cover" src="https://bugstack.cn/images/article/about/xiaofuge-avatar.png" alt="小傅哥">
+    </div>
+    <div class="bottom-accent"><span>WaLiCode · AI Shell 云服务器实战</span><span>1 / 11</span></div>
+  </div>
+
+  <!-- ========== 第2页：课程大纲 ========== -->
+  <div class="slide-card slide-content" id="s2">
+    <div class="slide-header">
+      <div class="header-left"><div class="course-tag"><span class="tag-icon">W</span>WaLiCode</div></div>
+      <div class="section-label"><strong>实战教程</strong> · AI Shell 云服务器</div>
+      <img class="avatar-img" src="https://bugstack.cn/images/article/about/xiaofuge-avatar.png" alt="小傅哥" title="讲师：小傅哥">
+    </div>
+    <div class="slide-body">
+      <h2>课程大纲</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content"><h4>AI Shell 连接云服务器</h4><p>使用 <span class="hl2">WaLiCode AI Shell</span> 快速连接并管理远程服务器，告别手动 SSH</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content"><h4>Docker 环境安装 + Portainer 使用</h4><p>容器化部署 <span class="hl">Docker</span>，可视化管理 <span class="hl">Portainer</span>，运维效率翻倍</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content"><h4>MySQL 配置和使用</h4><p>Docker 安装 <span class="hl3">MySQL</span>，远程访问配置，数据库基本操作实战</p></div>
+        </div>
+      </div>
+      <div class="info" style="margin-top: 14px;"><p>🎯 课程目标：从零开始，用 AI Shell 完成云服务器的连接、环境搭建、数据库部署全流程。</p></div>
+    </div>
+    <div class="slide-footer"><span>WaLiCode · AI Shell 云服务器实战</span><span>2 / 11</span></div>
+  </div>
+
+  <!-- ========== 第3页：第1节 章节封面 ========== -->
+  <div class="slide-card slide-cover slide-chapter-cover" id="s3">
+    <div class="top-accent"></div>
+    <div class="cover-course-info">
+      <div class="course-logo">W</div>
+      <div class="course-text">
+        <div class="course-main">WaLiCode</div>
+        <div class="course-sub">AI Shell 手把手操作云服务器</div>
+      </div>
+    </div>
+    <div class="course-badge"><span class="dot"></span>第 1 节</div>
+    <div class="chapter-icon">🚀</div>
+    <div class="chapter-main-title">AI Shell<br>连接云服务器</div>
+    <div class="chapter-sub-title">C H A P T E R   O N E</div>
+    <div class="chapter-divider"></div>
+    <div class="chapter-desc">用自然语言操控远程服务器<br>告别手动 SSH，AI 驱动运维新时代</div>
+    <div class="chapter-tags">
+      <span class="ctag ctag-blue">AI Shell</span>
+      <span class="ctag ctag-green">目录</span>
+      <span class="ctag ctag-gold">SFTP</span>
+      <span class="ctag ctag-red">跳板机</span>
+      <span class="ctag ctag-purple">隧道</span>
+    </div>
+    <div class="cover-bottom-area">
+      <div class="author-info">
+        <div class="author-name">讲师：小傅哥</div>
+        <div class="author-site">walicode.xiaofuge.cn</div>
+      </div>
+      <img class="avatar-cover" src="https://bugstack.cn/images/article/about/xiaofuge-avatar.png" alt="小傅哥">
+    </div>
+    <div class="bottom-accent"><span>第 1 节 · AI Shell 连接云服务器</span><span>3 / 11</span></div>
+  </div>
+
+  <!-- ========== 第4页：AI Shell 连接内容 ========== -->
+  <div class="slide-card slide-content" id="s4">
+    <div class="slide-header">
+      <div class="header-left"><div class="course-tag"><span class="tag-icon">W</span>WaLiCode</div></div>
+      <div class="section-label"><strong>第 1 节</strong> · AI Shell 连接云服务器</div>
+      <img class="avatar-img" src="https://bugstack.cn/images/article/about/xiaofuge-avatar.png" alt="小傅哥" title="讲师：小傅哥">
+    </div>
+    <div class="slide-body">
+      <h2>AI Shell 连接云服务器</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="card-head"><span class="card-icon">🚀</span><h4>一键连接</h4></div>
+          <p>AI Shell 智能识别服务器信息，告别手动输入 IP 和密码，自然语言描述即可连接。</p>
+          <div class="card-tags"><span class="tag tag-grn">零配置</span><span class="tag tag-grn">极速连接</span></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-icon">🤖</span><h4>自然语言操控</h4></div>
+          <p>用中文描述你要做的事，AI 自动生成并执行命令，无需记忆复杂语法。</p>
+          <div class="card-tags"><span class="tag tag-blu">AI驱动</span><span class="tag tag-blu">中文交互</span></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-icon">🛡️</span><h4>安全可靠</h4></div>
+          <p>执行前确认机制，危险操作自动拦截，生产环境操作无忧。</p>
+          <div class="card-tags"><span class="tag tag-red">安全拦截</span><span class="tag tag-red">操作确认</span></div>
+        </div>
+      </div>
+      <div class="tip" style="margin-top: 12px;"><p>💡 WaLiCode AI Shell 让服务器运维像聊天一样简单，新手也能快速上手！</p></div>
+    </div>
+    <div class="slide-footer"><span>WaLiCode · AI Shell 云服务器实战</span><span>4 / 11</span></div>
+  </div>
+
+  <!-- ========== 第5页：AI Shell 操作流程 ========== -->
+  <div class="slide-card slide-content" id="s5">
+    <div class="slide-header">
+      <div class="header-left"><div class="course-tag"><span class="tag-icon">W</span>WaLiCode</div></div>
+      <div class="section-label"><strong>第 1 节</strong> · AI Shell 连接云服务器</div>
+      <img class="avatar-img" src="https://bugstack.cn/images/article/about/xiaofuge-avatar.png" alt="小傅哥" title="讲师：小傅哥">
+    </div>
+    <div class="slide-body">
+      <h2>AI Shell 操作流程</h2>
+      <div class="arch-diagram" style="margin-bottom: 14px;">
+        <div class="arch-row"><div class="arch-box af">🖥️ AI Shell 终端<br><small>自然语言输入</small></div></div>
+        <div class="arch-arrow">↓ 智能解析</div>
+        <div class="arch-row"><div class="arch-box ab">🧠 AI Agent<br><small>意图识别 + 命令生成</small></div></div>
+        <div class="arch-arrow">↓ SSH 执行</div>
+        <div class="arch-row"><div class="arch-box at">☁️ 云服务器<br><small>远程命令执行</small></div></div>
+      </div>
+      <div class="two-col">
+        <div class="col-box">
+          <h4>🔑 连接步骤</h4>
+          <ul>
+            <li>打开 WaLiCode AI Shell</li>
+            <li>输入云服务器 <span class="hl2">IP / 域名</span></li>
+            <li>配置 <span class="hl2">SSH 密钥 / 密码</span></li>
+            <li>AI 验证连接并进入交互</li>
+          </ul>
+        </div>
+        <div class="col-box">
+          <h4>💬 示例对话</h4>
+          <div class="code-block" style="margin-top: 8px; font-size: 14px;">
+<span class="comment"># 自然语言连接</span>
+<span class="cmd">连接到</span> 47.98.123.45 服务器
+<span class="cmd">查看</span> 服务器系统版本
+<span class="cmd">检查</span> 磁盘使用情况
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer"><span>WaLiCode · AI Shell 云服务器实战</span><span>5 / 11</span></div>
+  </div>
+
+  <!-- ========== 第6页：第2节 章节封面 ========== -->
+  <div class="slide-card slide-cover slide-chapter-cover" id="s6">
+    <div class="top-accent"></div>
+    <div class="cover-course-info">
+      <div class="course-logo">W</div>
+      <div class="course-text">
+        <div class="course-main">WaLiCode</div>
+        <div class="course-sub">AI Shell 手把手操作云服务器</div>
+      </div>
+    </div>
+    <div class="course-badge"><span class="dot"></span>第 2 节</div>
+    <div class="chapter-icon">🐳</div>
+    <div class="chapter-main-title">Docker + Portainer<br>环境安装与使用</div>
+    <div class="chapter-sub-title">C H A P T E R   T W O</div>
+    <div class="chapter-divider"></div>
+    <div class="chapter-desc">容器化部署 · 可视化管理<br>让运维像操作手机 App 一样简单</div>
+    <div class="cover-bottom-area">
+      <div class="author-info">
+        <div class="author-name">讲师：小傅哥</div>
+        <div class="author-site">walicode.xiaofuge.cn</div>
+      </div>
+      <img class="avatar-cover" src="https://bugstack.cn/images/article/about/xiaofuge-avatar.png" alt="小傅哥">
+    </div>
+    <div class="bottom-accent"><span>第 2 节 · Docker + Portainer</span><span>6 / 11</span></div>
+  </div>
+
+  <!-- ========== 第7页：Docker + Portainer 内容 ========== -->
+  <div class="slide-card slide-content" id="s7">
+    <div class="slide-header">
+      <div class="header-left"><div class="course-tag"><span class="tag-icon">W</span>WaLiCode</div></div>
+      <div class="section-label"><strong>第 2 节</strong> · Docker + Portainer</div>
+      <img class="avatar-img" src="https://bugstack.cn/images/article/about/xiaofuge-avatar.png" alt="小傅哥" title="讲师：小傅哥">
+    </div>
+    <div class="slide-body">
+      <h2>Docker 环境安装 + Portainer 使用</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="card-head"><span class="card-icon">📦</span><h4>Docker 一键部署</h4></div>
+          <p>AI Shell 自动检测系统环境，安装 Docker 引擎并完成基础配置。</p>
+          <div class="card-tags"><span class="tag tag-grn">自动安装</span><span class="tag tag-grn">环境检测</span></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-icon">🖥️</span><h4>Portainer 可视化</h4></div>
+          <p>Web 界面管理容器、镜像、网络和卷，运维效率翻倍。</p>
+          <div class="card-tags"><span class="tag tag-blu">Web管理</span><span class="tag tag-blu">可视化</span></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-icon">⚡</span><h4>环境即代码</h4></div>
+          <p>容器化部署，一次构建到处运行，告别"在我机器上能跑"。</p>
+          <div class="card-tags"><span class="tag tag-gld">容器化</span><span class="tag tag-gld">可移植</span></div>
+        </div>
+      </div>
+      <div class="info" style="margin-top: 12px;"><p>📌 Docker 是云原生时代的标配技能，配合 Portainer 让容器管理像操作手机 App 一样简单！</p></div>
+    </div>
+    <div class="slide-footer"><span>WaLiCode · AI Shell 云服务器实战</span><span>7 / 11</span></div>
+  </div>
+
+  <!-- ========== 第8页：Docker 操作实战 ========== -->
+  <div class="slide-card slide-content" id="s8">
+    <div class="slide-header">
+      <div class="header-left"><div class="course-tag"><span class="tag-icon">W</span>WaLiCode</div></div>
+      <div class="section-label"><strong>第 2 节</strong> · Docker + Portainer</div>
+      <img class="avatar-img" src="https://bugstack.cn/images/article/about/xiaofuge-avatar.png" alt="小傅哥" title="讲师：小傅哥">
+    </div>
+    <div class="slide-body">
+      <h2>Docker + Portainer 实战流程</h2>
+      <div class="two-col">
+        <div class="col-box">
+          <h4>🔧 Docker 安装命令</h4>
+          <div class="code-block" style="margin-top: 8px;">
+<span class="comment"># AI Shell 一键安装 Docker</span>
+<span class="cmd">帮我在服务器上安装 Docker</span>
+
+<span class="comment"># 安装完成后验证</span>
+<span class="cmd">docker</span> --version
+<span class="cmd">docker</span> compose version
+          </div>
+          <div class="tip" style="margin-top: 8px;"><p>💡 AI Shell 自动适配 CentOS / Ubuntu 不同系统的安装方式。</p></div>
+        </div>
+        <div class="col-box">
+          <h4>🖥️ Portainer 部署</h4>
+          <div class="code-block" style="margin-top: 8px;">
+<span class="comment"># 部署 Portainer 容器</span>
+<span class="cmd">docker</span> run -d \
+  --name portainer \
+  -p 9000:9000 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  portainer/portainer-ce
+          </div>
+          <div class="info" style="margin-top: 8px;"><p>🔑 访问 <code>http://服务器IP:9000</code> 进入管理面板，首次使用设置管理员密码。</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer"><span>WaLiCode · AI Shell 云服务器实战</span><span>8 / 11</span></div>
+  </div>
+
+  <!-- ========== 第9页：第3节 章节封面 ========== -->
+  <div class="slide-card slide-cover slide-chapter-cover" id="s9">
+    <div class="top-accent"></div>
+    <div class="cover-course-info">
+      <div class="course-logo">W</div>
+      <div class="course-text">
+        <div class="course-main">WaLiCode</div>
+        <div class="course-sub">AI Shell 手把手操作云服务器</div>
+      </div>
+    </div>
+    <div class="course-badge"><span class="dot"></span>第 3 节</div>
+    <div class="chapter-icon">🗄️</div>
+    <div class="chapter-main-title">MySQL 配置<br>和使用</div>
+    <div class="chapter-sub-title">C H A P T E R   T H R E E</div>
+    <div class="chapter-divider"></div>
+    <div class="chapter-desc">Docker 部署数据库 · 远程访问配置<br>从建库到实战操作一站式搞定</div>
+    <div class="cover-bottom-area">
+      <div class="author-info">
+        <div class="author-name">讲师：小傅哥</div>
+        <div class="author-site">walicode.xiaofuge.cn</div>
+      </div>
+      <img class="avatar-cover" src="https://bugstack.cn/images/article/about/xiaofuge-avatar.png" alt="小傅哥">
+    </div>
+    <div class="bottom-accent"><span>第 3 节 · MySQL 配置和使用</span><span>9 / 11</span></div>
+  </div>
+
+  <!-- ========== 第10页：MySQL 内容 ========== -->
+  <div class="slide-card slide-content" id="s10">
+    <div class="slide-header">
+      <div class="header-left"><div class="course-tag"><span class="tag-icon">W</span>WaLiCode</div></div>
+      <div class="section-label"><strong>第 3 节</strong> · MySQL 配置和使用</div>
+      <img class="avatar-img" src="https://bugstack.cn/images/article/about/xiaofuge-avatar.png" alt="小傅哥" title="讲师：小傅哥">
+    </div>
+    <div class="slide-body">
+      <h2>MySQL 配置和使用</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="card-head"><span class="card-icon">🗄️</span><h4>Docker 部署 MySQL</h4></div>
+          <p>容器化安装 MySQL，数据持久化存储，配置即代码，一键启停。</p>
+          <div class="card-tags"><span class="tag tag-grn">容器化</span><span class="tag tag-grn">持久化</span></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-icon">🔐</span><h4>安全配置</h4></div>
+          <p>远程访问控制、用户权限管理、连接加密，保障数据安全无忧。</p>
+          <div class="card-tags"><span class="tag tag-red">权限管理</span><span class="tag tag-red">访问控制</span></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-icon">🔧</span><h4>实战操作</h4></div>
+          <p>建库建表、数据导入导出、慢查询分析等常用操作演示。</p>
+          <div class="card-tags"><span class="tag tag-blu">建库建表</span><span class="tag tag-blu">数据操作</span></div>
+        </div>
+      </div>
+      <div class="two-col" style="margin-top: 12px;">
+        <div class="col-box">
+          <h4>📦 MySQL Docker 部署</h4>
+          <div class="code-block" style="margin-top: 8px; font-size: 14px;">
+<span class="cmd">docker</span> run -d \
+  --name mysql \
+  -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=<span class="str">your_password</span> \
+  -v mysql_data:/var/lib/mysql \
+  mysql:8.0
+          </div>
+        </div>
+        <div class="col-box">
+          <h4>🔑 远程连接配置</h4>
+          <ul>
+            <li>开放 <span class="hl2">3306 端口</span>（安全组 + 防火墙）</li>
+            <li>创建远程访问用户并授权</li>
+            <li>修改 <code>bind-address</code> 允许外部连接</li>
+            <li>使用 <span class="hl3">Navicat / DBeaver</span> 连接验证</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer"><span>WaLiCode · AI Shell 云服务器实战</span><span>10 / 11</span></div>
+  </div>
+
+  <!-- ========== 第11页：总结 ========== -->
+  <div class="slide-card slide-content" id="s11">
+    <div class="slide-header">
+      <div class="header-left"><div class="course-tag"><span class="tag-icon">W</span>WaLiCode</div></div>
+      <div class="section-label"><strong>实战教程</strong> · AI Shell 云服务器</div>
+      <img class="avatar-img" src="https://bugstack.cn/images/article/about/xiaofuge-avatar.png" alt="小傅哥" title="讲师：小傅哥">
+    </div>
+    <div class="slide-body">
+      <h2>课程总结</h2>
+      <div class="hw-cards" style="margin-bottom: 14px;">
+        <div class="hw-card">
+          <div class="lvl ez">⭐ 简单作业</div>
+          <h4>用 AI Shell 搭建你的云服务器</h4>
+          <p>按照课程步骤，用 WaLiCode AI Shell 完成服务器连接、Docker 安装、MySQL 部署全流程。</p>
+        </div>
+        <div class="hw-card">
+          <div class="lvl hd">⭐⭐ 进阶作业</div>
+          <h4>思考容器化部署的优势</h4>
+          <p>为什么推荐 Docker 部署而不是直接安装？Portainer 解决了什么痛点？如何保障 MySQL 数据安全？</p>
+        </div>
+      </div>
+      <div style="background: var(--blue); border-radius: 6px; padding: 18px 24px; color: rgba(255,255,255,0.9);">
+        <div style="font-size: 20px; font-weight: 700; color: var(--gold-light); margin-bottom: 12px;">✨ 本节总结</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 17px; line-height: 1.7;">
+          <div>✅ AI Shell 自然语言连接管理服务器</div>
+          <div>✅ Docker 容器化 + Portainer 可视化管理</div>
+          <div>✅ MySQL 容器部署与远程访问配置</div>
+          <div>✅ 从连接到部署，全流程 AI 驱动</div>
+        </div>
+        <div style="text-align: center; margin-top: 12px; font-size: 16px; color: rgba(255,255,255,0.35);">沉淀 · 分享 · 成长 🚀</div>
+      </div>
+      <div class="link-list" style="margin-top: 12px;">
+        <div class="link-item"><span class="link-icon">🌐</span><a href="https://walicode.xiaofuge.cn" target="_blank">walicode.xiaofuge.cn</a><span class="link-desc" style="font-size: 12px; color: var(--gray-500); margin-left: 4px;">— WaLiCode 官网</span></div>
+      </div>
+    </div>
+    <div class="slide-footer"><span>WaLiCode · AI Shell 云服务器实战</span><span>11 / 11</span></div>
+  </div>
+
+</div>
+
+<!-- 缩略图导航 -->
+<div class="thumb-strip" id="thumbStrip">
+  <div class="thumb cover-thumb active" onclick="showSlide(1)" title="总封面"><div class="thumb-preview">总封面</div><div class="thumb-num">1</div></div>
+  <div class="thumb" onclick="showSlide(2)" title="课程大纲"><div class="thumb-preview">课程大纲</div><div class="thumb-num">2</div></div>
+  <div class="thumb chapter-thumb" onclick="showSlide(3)" title="第1节封面"><div class="thumb-preview">① AI Shell</div><div class="thumb-num">3</div></div>
+  <div class="thumb" onclick="showSlide(4)" title="AI Shell连接"><div class="thumb-preview">AI Shell连接</div><div class="thumb-num">4</div></div>
+  <div class="thumb" onclick="showSlide(5)" title="操作流程"><div class="thumb-preview">操作流程</div><div class="thumb-num">5</div></div>
+  <div class="thumb chapter-thumb" onclick="showSlide(6)" title="第2节封面"><div class="thumb-preview">② Docker</div><div class="thumb-num">6</div></div>
+  <div class="thumb" onclick="showSlide(7)" title="Docker+Portainer"><div class="thumb-preview">Docker</div><div class="thumb-num">7</div></div>
+  <div class="thumb" onclick="showSlide(8)" title="Docker实战"><div class="thumb-preview">Docker实战</div><div class="thumb-num">8</div></div>
+  <div class="thumb chapter-thumb" onclick="showSlide(9)" title="第3节封面"><div class="thumb-preview">③ MySQL</div><div class="thumb-num">9</div></div>
+  <div class="thumb" onclick="showSlide(10)" title="MySQL内容"><div class="thumb-preview">MySQL</div><div class="thumb-num">10</div></div>
+  <div class="thumb" onclick="showSlide(11)" title="课程总结"><div class="thumb-preview">总结</div><div class="thumb-num">11</div></div>
+</div>
+
+<script>
+  let current = 1;
+  const total = 11;
+
+  function showSlide(n) {
+    if (n < 1 || n > total) return;
+    document.getElementById('s' + current).classList.remove('active');
+    document.getElementById('s' + n).classList.add('active');
+
+    const thumbs = document.querySelectorAll('.thumb');
+    thumbs.forEach((t, i) => t.classList.toggle('active', i === n - 1));
+
+    const activeThumb = thumbs[n - 1];
+    if (activeThumb) {
+      activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    current = n;
+  }
+
+  function changeSlide(dir) { showSlide(current + dir); }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault(); changeSlide(1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault(); changeSlide(-1);
+    } else if (e.key === 'Home') { showSlide(1); }
+    else if (e.key === 'End') { showSlide(total); }
+  });
+
+  document.getElementById('stage').addEventListener('click', (e) => {
+    if (e.target.closest('.slide-card') && !e.target.closest('button') && !e.target.closest('a') && e.target.tagName !== 'IMG') {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      if (x < rect.width * 0.3) changeSlide(-1);
+      else if (x > rect.width * 0.7) changeSlide(1);
+    }
+  });
+
+  // 支持 ?slide=N 直接定位页面（便于分享和截图）
+  const params = new URLSearchParams(location.search);
+  const initial = parseInt(params.get('slide'), 10);
+  if (initial >= 1 && initial <= total) showSlide(initial);
+</script>
+
+</body>
+</html>
